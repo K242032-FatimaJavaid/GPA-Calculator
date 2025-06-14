@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPA Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1, h2 {
+            color: #2c3e50;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .course-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .course-row input, .course-row select {
+            flex: 1;
+        }
+        
+        .remove-btn {
+            background-color: #e74c3c;
+            padding: 10px;
+        }
+        
+        .remove-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .result {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .grade-info {
+            margin-top: 30px;
+        }
+        
+        .prior-gpa {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #ecf0f1;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .course-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .course-row input, .course-row select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>GPA Calculator</h1>
+    
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('calculator')">Calculator</div>
+            <div class="tab" onclick="switchTab('grading-scheme')">Grading Scheme</div>
+        </div>
+        
+        <div id="calculator" class="tab-content active">
+            <div id="courses-container">
+                <div class="course-row">
+                    <input type="text" placeholder="Course Name" class="course-name">
+                    <select class="course-grade">
+                        <option value="4.00">A+</option>
+                        <option value="4.00">A</option>
+                        <option value="3.67">A-</option>
+                        <option value="3.33">B+</option>
+                        <option value="3.00">B</option>
+                        <option value="2.67">B-</option>
+                        <option value="2.33">C+</option>
+                        <option value="2.00">C</option>
+                        <option value="1.67">C-</option>
+                        <option value="1.33">D+</option>
+                        <option value="1.00">D</option>
+                    </select>
+                    <input type="number" placeholder="Credits" class="course-credits" min="1" value="3">
+                    <button class="remove-btn" onclick="removeCourse(this)">×</button>
+                </div>
+            </div>
+            
+            <div>
+                <button onclick="addCourse()">Add Course</button>
+                <button onclick="calculateGPA()">Calculate GPA</button>
+                <button onclick="resetCalculator()">Reset</button>
+            </div>
+            
+            <div class="prior-gpa">
+                <h3>Prior Semester GPA (Optional)</h3>
+                <div class="form-group">
+                    <label for="prior-gpa">Prior GPA:</label>
+                    <input type="number" id="prior-gpa" step="0.01" min="0" max="4.00" placeholder="Enter prior GPA if applicable">
+                </div>
+                <div class="form-group">
+                    <label for="prior-credits">Prior Credits:</label>
+                    <input type="number" id="prior-credits" min="0" placeholder="Total credits from prior semesters">
+                </div>
+            </div>
+            
+            <div id="result" class="result"></div>
+        </div>
+        
+        <div id="grading-scheme" class="tab-content">
+            <div class="grade-info">
+                <p>Letter grades for BS programs</p>
+                <h2>Absolute Grading Scheme</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Grade</th>
+                            <th>Points</th>
+                            <th>Interpretation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>A+</td>
+                            <td>4.00</td>
+                            <td>Excellent</td>
+                        </tr>
+                        <tr>
+                            <td>A</td>
+                            <td>4.00</td>
+                            <td>Excellent</td>
+                        </tr>
+                        <tr>
+                            <td>A-</td>
+                            <td>3.67</td>
+                            <td>Very Good</td>
+                        </tr>
+                        <tr>
+                            <td>B+</td>
+                            <td>3.33</td>
+                            <td>Very Good</td>
+                        </tr>
+                        <tr>
+                            <td>B</td>
+                            <td>3.00</td>
+                            <td>Good</td>
+                        </tr>
+                        <tr>
+                            <td>B-</td>
+                            <td>2.67</td>
+                            <td>Average</td>
+                        </tr>
+                        <tr>
+                            <td>C+</td>
+                            <td>2.33</td>
+                            <td>Below Average</td>
+                        </tr>
+                        <tr>
+                            <td>C</td>
+                            <td>2.00</td>
+                            <td>Adequate</td>
+                        </tr>
+                        <tr>
+                            <td>C-</td>
+                            <td>1.67</td>
+                            <td>Pass</td>
+                        </tr>
+                        <tr>
+                            <td>D+</td>
+                            <td>1.33</td>
+                            <td>Pass</td>
+                        </tr>
+                        <tr>
+                            <td>D</td>
+                            <td>1.00</td>
+                            <td>Pass</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize with one course
+        document.addEventListener('DOMContentLoaded', function() {
+            // Any initialization code can go here
+        });
+        
+        function addCourse() {
+            const container = document.getElementById('courses-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'course-row';
+            newRow.innerHTML = `
+                <input type="text" placeholder="Course Name" class="course-name">
+                <select class="course-grade">
+                    <option value="4.00">A+</option>
+                    <option value="4.00">A</option>
+                    <option value="3.67">A-</option>
+                    <option value="3.33">B+</option>
+                    <option value="3.00">B</option>
+                    <option value="2.67">B-</option>
+                    <option value="2.33">C+</option>
+                    <option value="2.00">C</option>
+                    <option value="1.67">C-</option>
+                    <option value="1.33">D+</option>
+                    <option value="1.00">D</option>
+                </select>
+                <input type="number" placeholder="Credits" class="course-credits" min="1" value="3">
+                <button class="remove-btn" onclick="removeCourse(this)">×</button>
+            `;
+            container.appendChild(newRow);
+        }
+        
+        function removeCourse(button) {
+            const row = button.parentElement;
+            if (document.querySelectorAll('.course-row').length > 1) {
+                row.remove();
+            } else {
+                // Clear inputs instead of removing the last row
+                row.querySelector('.course-name').value = '';
+                row.querySelector('.course-grade').selectedIndex = 0;
+                row.querySelector('.course-credits').value = '3';
+            }
+        }
+        
+        function calculateGPA() {
+            const courseRows = document.querySelectorAll('.course-row');
+            let totalPoints = 0;
+            let totalCredits = 0;
+            let courseDetails = [];
+            
+            courseRows.forEach(row => {
+                const gradeSelect = row.querySelector('.course-grade');
+                const creditsInput = row.querySelector('.course-credits');
+                const nameInput = row.querySelector('.course-name');
+                
+                const grade = parseFloat(gradeSelect.value);
+                const creditsText = creditsInput.value.trim();
+                const credits = creditsText ? parseFloat(creditsText) : 0;
+                const courseName = nameInput.value.trim() || `Course ${courseDetails.length + 1}`;
+                
+                if (!isNaN(grade)) {
+                    if (!isNaN(credits) && credits > 0) {
+                        totalPoints += grade * credits;
+                        totalCredits += credits;
+                        courseDetails.push({
+                            name: courseName,
+                            grade: grade,
+                            credits: credits
+                        });
+                    } else {
+                        alert(`Please enter valid credits for ${courseName}`);
+                        creditsInput.focus();
+                        return;
+                    }
+                }
+            });
+            
+            if (totalCredits === 0) {
+                alert("Please enter at least one course with valid credits");
+                return;
+            }
+            
+            // Check for prior GPA
+            const priorGPAInput = document.getElementById('prior-gpa');
+            const priorCreditsInput = document.getElementById('prior-credits');
+            
+            const priorGPAText = priorGPAInput.value.trim();
+            const priorCreditsText = priorCreditsInput.value.trim();
+            
+            const priorGPA = priorGPAText ? parseFloat(priorGPAText) : NaN;
+            const priorCredits = priorCreditsText ? parseFloat(priorCreditsText) : NaN;
+            
+            let cumulativeGPA = null;
+            const semesterGPA = totalPoints / totalCredits;
+            
+            if (!isNaN(priorGPA)) {
+                if (!isNaN(priorCredits) && priorCredits > 0) {
+                    cumulativeGPA = (priorGPA * priorCredits + totalPoints) / (priorCredits + totalCredits);
+                } else if (priorGPAText) {
+                    alert("Please enter valid prior credits to calculate cumulative GPA");
+                    priorCreditsInput.focus();
+                    return;
+                }
+            }
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            
+            let resultHTML = `<p>Semester GPA: <strong>${semesterGPA.toFixed(2)}</strong></p>`;
+            
+            if (cumulativeGPA !== null) {
+                resultHTML += `<p>Cumulative GPA: <strong>${cumulativeGPA.toFixed(2)}</strong></p>`;
+            }
+            
+            resultHTML += `<div style="margin-top: 20px;"><h3>Course Details:</h3><ul>`;
+            courseDetails.forEach(course => {
+                // Find the grade letter for display
+                const gradeLetter = getGradeLetter(course.grade);
+                resultHTML += `<li>${course.name}: ${gradeLetter} (${course.grade.toFixed(2)}) - ${course.credits} credit${course.credits !== 1 ? 's' : ''}</li>`;
+            });
+            resultHTML += `</ul></div>`;
+            
+            resultDiv.innerHTML = resultHTML;
+        }
+        
+        function getGradeLetter(gradeValue) {
+            const gradeMap = {
+                '4.00': 'A+/A',
+                '3.67': 'A-',
+                '3.33': 'B+',
+                '3.00': 'B',
+                '2.67': 'B-',
+                '2.33': 'C+',
+                '2.00': 'C',
+                '1.67': 'C-',
+                '1.33': 'D+',
+                '1.00': 'D'
+            };
+            
+            // Handle floating point precision issues by rounding to 2 decimal places
+            const roundedValue = gradeValue.toFixed(2);
+            return gradeMap[roundedValue] || roundedValue;
+        }
+        
+        function resetCalculator() {
+            const container = document.getElementById('courses-container');
+            container.innerHTML = '';
+            
+            // Add one empty course row
+            addCourse();
+            
+            // Clear prior GPA fields
+            document.getElementById('prior-gpa').value = '';
+            document.getElementById('prior-credits').value = '';
+            
+            // Hide result
+            document.getElementById('result').style.display = 'none';
+        }
+        
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Deactivate all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activate selected tab
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
